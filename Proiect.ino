@@ -1,25 +1,28 @@
 #include <LiquidCrystal.h>
-#define SAMPLE_TIME 100
-#define SENSOR_PIN  A0
+#include "ADCModule.h"
+#include "UARTModule.h"
+#include "TimerPWMModule.h"
+
+// Change Board to Arduino Mega
 
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
 
-void setup() 
+int main()
 {
-	Serial.begin(9600);
-    lcd.begin(16, 2);
-	
-	pinMode(SENSOR_PIN, INPUT);
+    ADCModule::init();
+    UARTModule::init();
+    TimerPWMModule::init();
+    
+    sei();
+    
+    while(1)
+    {
+        
+    }
 }
 
-void loop() 
+ISR(TIMER1_COMPA_vect)
 {
-	int adcValue = analogRead(A0);
-	double voltage = 5.0/1023.0 * (double)adcValue;
-	double temperature = voltage * 100.0;
-	
-	lcd.setCursor(0, 0);
-	lcd.print("Temp = " + String(temperature) + " *C");
-	
-	delay(SAMPLE_TIME);
+    UARTModule::println("Hello");
 }
+
