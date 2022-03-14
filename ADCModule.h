@@ -8,6 +8,7 @@ class ADCModule
 public:
     static void init();
     static int read(int pin);
+    static double readTemperature(int pin);
 };
 
 #endif
