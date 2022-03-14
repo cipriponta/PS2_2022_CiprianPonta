@@ -16,3 +16,10 @@ static int ADCModule::read(int pin)
     while(ADCSRA & (1 << ADSC));
     return ADC;
 }
+
+static double ADCModule::readTemperature(int pin)
+{
+    int adcValue = read(pin);
+    double voltage = 5.0/1023.0 * (double)adcValue;
+	return voltage * 100.0;
+}

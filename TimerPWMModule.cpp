@@ -2,31 +2,32 @@
 
 void TimerPWMModule::init()
 {
-    DDRB |= (1 << PB5);     // Builtin LED
+    DDRB |= (1 << PB7);                                 // Builtin LED
     
-    DDRB |= (1 << PB3);     // Red   Component (Pin 13, OCR2A)
-    DDRD |= (1 << PD6);     // Green Component (Pin  6, OCR0A)
-    DDRD |= (1 << PD5);     // Blue  Component (Pin  5, OCR0B)  
+    DDRB |= (1 << PB6);                                 // Red   Component (Pin 12, OCR1B)
+    DDRB |= (1 << PB5);                                 // Green Component (Pin 11, OCR1A)
+    DDRB |= (1 << PB4);                                 // Blue  Component (Pin 10, OCR2A)  
     
-    // Timer2 Setup - OCR2A(Pin 13) -> PWM
-    TCCR2A |= (1 << WGM21) | (1 << WGM20);              // Fast PWM Mode
-    TCCR2A |= (1 << COM2A1);                            // Non inverting mode, OCR2A
-    TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);  // 1024 prescaler
+    // Timer1, OCR1A(Pin 11), OCR1B(Pin 12) -> Fast PWM
+    TCCR1A |= (1 << WGM10);                             // Fast PWM, 8-bit
+    TCCR1B |= (1 << WGM12);                             // Fast PWM, 8-bit
+    TCCR1A |= (1 << COM1A1);                            // OCR1A non inverting mode
+    TCCR1A |= (1 << COM1B1);                            // OCR1B non inverting mode
+    TCCR1B |= (1 << CS12) | (1 << CS10);                // Prescaler = 1024
     
-    // Timer0 Setup - OCR0A(Pin 6) -> PWM, OCR0B(Pin 5) -> PWM
-    TCCR0A |= (1 << WGM01) | (1 << WGM00);              // Fast PWM Mode
-    TCCR0A |= (1 << COM0A1);                            // Non inverting mode, OCR0A
-    TCCR0A |= (1 << COM0B1);                            // Non inverting mode, OCR0B
-    TCCR0B |= (1 << CS02) | (1 << CS00);                // 1024 prescaler
+    // Timer2, OCR2A(Pin 10) -> Fast PWM
+    TCCR2A |= (1 << WGM21) | (1 << WGM20);              // Fast PWM, 8-bit
+    TCCR2A |= (1 << COM2A1);                            // OCR2A non inverting mode
+    TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);  // Prescaler = 1024
     
-    // Timer1 Setup -> Timer with 0.05 period
-    TCCR1B |= (1 << WGM12);                             // CTC
-    TCCR1B |= (1 << CS11) | (1 << CS10);                // 64 prescaler
-    TIMSK1 |= (1 << OCIE1A);                            // Interrupt enable
-    OCR1A = (int)((F_CPU / PRESC) / 10LL);              // Interrupt period
+    // Timer5 -> CTC
+    TCCR5B |= (1 << WGM52);                             // CTC
+    TCCR5B |= (1 << CS51) | (1 << CS50);                // Prescaler = 64
+    TIMSK1 |= (1 << OCIE5A);                            // Interrupt enable
+    OCR5A = (int)((F_CPU / PRESC) / 10LL);              // Interrupt period
     
-    OCR2A = 255;
-    OCR0A = 255;
-    OCR0B = 255;
+    OCR1B = 0;
+    OCR1A = 0;
+    OCR2A = 0;
 }
 

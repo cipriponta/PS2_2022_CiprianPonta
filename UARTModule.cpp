@@ -64,31 +64,32 @@ static void UARTModule::parseRGB(char *message)
         }
     }
     
+    char charOCR1B[3];
+    char charOCR1A[3];
     char charOCR2A[3];
-    char charOCR0A[3];
-    char charOCR0B[3];
     
-    strncpy(charOCR2A, message + 2, 2);
-    charOCR2A[2] = '\0';
-    strncpy(charOCR0A, message + 4, 2);
-    charOCR0A[2] = '\0';
-    strncpy(charOCR0B, message + 6, 2);
-    charOCR0B[2] = '\0';
+    strncpy(charOCR1B, message + 2, 2);
+    charOCR1B[2] = '\0';
+    strncpy(charOCR1A, message + 4, 2);
+    charOCR1A[2] = '\0';
+    strncpy(charOCR2A, message + 6, 2);
+    charOCR1A[2] = '\0';
     
+    OCR1B = (int)strtol(charOCR1B, NULL, 16);
+    OCR1A = (int)strtol(charOCR1A, NULL, 16);
     OCR2A = (int)strtol(charOCR2A, NULL, 16);
-    OCR0A = (int)strtol(charOCR0A, NULL, 16);
-    OCR0B = (int)strtol(charOCR0B, NULL, 16);
     
-    UARTModule::print("(");
-    UARTModule::print((int)OCR2A);
-    UARTModule::print(", ");
-    UARTModule::print((int)OCR0A);
-    UARTModule::print(", ");
-    UARTModule::print((int)OCR0B);
-    UARTModule::println(")");
+    /* Used for debugging */
+    // UARTModule::print("(");
+    // UARTModule::print((int)OCR1B);
+    // UARTModule::print(", ");
+    // UARTModule::print((int)OCR1A);
+    // UARTModule::print(", ");
+    // UARTModule::print((int)OCR2A);
+    // UARTModule::println(")");
 }
 
-ISR(USART_RX_vect)
+ISR(USART0_RX_vect)
 {
     static char messageBuffer[100];
     static int messageLength;
@@ -97,15 +98,21 @@ ISR(USART_RX_vect)
     
     if(character == '\n')
     {
-        messageBuffer[messageLength] = '\0';
+        messageBuffer[messageLength] = '\0';  
+        
+        /* Used for debugging */
+        // for(int i = 0; i < strlen(messageBuffer); i++)
+        // {
+            // UARTModule::sendChar(messageBuffer[i]);
+        // }
         
         if(strcmp(messageBuffer, "1 A") == 0)
         {
-            PORTB |= (1 << PB5);
+            PORTB |= (1 << PB7);
         }
         else if(strcmp(messageBuffer, "1 S") == 0)
         {
-            PORTB &= !(1 << PB5);
+            PORTB &= !(1 << PB7);
         }
         else if(strlen(messageBuffer) == 8)
         {
