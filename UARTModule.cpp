@@ -31,6 +31,17 @@ static void UARTModule::print(int number)
     UARTModule::print(charNumber);
 }
 
+static void UARTModule::print(double number)
+{
+    double numberX100 = number * 100;
+    int decimalPart = (int)(numberX100 / 100.0);
+    int fractionalPart = (int)numberX100 % 100;
+    
+    UARTModule::print(decimalPart);
+    UARTModule::print(".");
+    UARTModule::print(fractionalPart);
+}
+
 static void UARTModule::println()
 {
     UARTModule::sendChar('\n');

@@ -34,19 +34,39 @@ ISR(TIMER1_COMPA_vect)
     
     interruptCount++;
     
-    if(interruptCount == 5)
+    if(interruptCount == 10)
     {
         interruptCount = 0;
     }
     
     if(interruptCount == 0)
     {
-        lcd.setCursor(0, 0);
-        lcd.print("PS2 2022");
-
         double temperature = ADCModule::readTemperature(0);
+        int floodDetected = PINH & (1 << 6);
+        
+        // Display
+        lcd.setCursor(0, 0);
+        lcd.print("PS2 2022");  
         
         lcd.setCursor(0, 1);
         lcd.print("Temp = " + String(temperature) + "*C    ");
+        
+        // Terminal
+        UARTModule::print("Temperature: ");
+        UARTModule::print(temperature);
+        UARTModule::println();
+        
+        UARTModule::print("Flood detected: ");
+        if(floodDetected)
+        {
+            UARTModule::println("YES");
+        }  
+        else
+        {
+            UARTModule::println("NO");
+        }
+        UARTModule::println();
+        
+        UARTModule::println();
     }
 }

@@ -10,6 +10,7 @@ public:
     static void sendChar(char message);
     static void print(char *message);
     static void print(int number);
+    static void print(double number);
     static void println();
     static void println(char *message);
     static int  checkIfHex(char c);
