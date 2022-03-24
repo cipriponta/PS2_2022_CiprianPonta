@@ -100,43 +100,41 @@ static void UARTModule::parseRGB(char *message)
     // UARTModule::println(")");
 }
 
-ISR(USART0_RX_vect)
+static void UARTModule::getUserMessage(char *message, MessageQueue *userMessageStorage)
 {
-    static char messageBuffer[100];
-    static int messageLength;
+    UARTModule::print("Message received: ");
+    UARTModule::println(message + 2);
+    UARTModule::println();
     
-    char character = UDR0;
+    userMessageStorage->index++;
+    if(userMessageStorage->index == 10)
+    {
+        userMessageStorage->index = 0;
+    }
     
-    if(character == '\n')
+    strcpy(userMessageStorage->messageArray[userMessageStorage->index], message + 2);
+    
+    EEPROMModule::setStorage(userMessageStorage);
+}
+
+static void UARTModule::showUserMessages(MessageQueue userMessageStorage)
+{
+    int count = 10;
+    
+    UARTModule::println("Last 10 User Messages: ");
+    for(int i = userMessageStorage.index; i >= 0; i--)
     {
-        messageBuffer[messageLength] = '\0';  
-        
-        /* Used for debugging */
-        // for(int i = 0; i < strlen(messageBuffer); i++)
-        // {
-            // UARTModule::sendChar(messageBuffer[i]);
-        // }
-        
-        if(strcmp(messageBuffer, "1 A") == 0)
-        {
-            PORTB |= (1 << PB7);
-        }
-        else if(strcmp(messageBuffer, "1 S") == 0)
-        {
-            PORTB &= !(1 << PB7);
-        }
-        else if(strlen(messageBuffer) == 8)
-        {
-            if(messageBuffer[0] == '2')
-            {
-                UARTModule::parseRGB(messageBuffer);
-            }
-        }
-        
-        messageLength = 0;
+        UARTModule::print(count--);
+        UARTModule::print(". \t");
+        UARTModule::println(userMessageStorage.messageArray[i]);
     }
-    else
+    
+    for(int i = MESSAGE_QUEUE_LENGTH - 1; i > userMessageStorage.index; i--)
     {
-        messageBuffer[messageLength++] = character;
+        UARTModule::print(count--);
+        UARTModule::print(". \t");
+        UARTModule::println(userMessageStorage.messageArray[i]);
     }
+    
+    UARTModule::println();
 }
