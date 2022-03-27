@@ -12,11 +12,7 @@ typedef struct MessageQueue
     int index;
 }MessageQueue;
 
-class EEPROMModule
-{
-public:
-    static void getStorage(MessageQueue *userMessageStorage);
-    static void setStorage(MessageQueue *userMessageStorage);
-};
+void eeprom_v_getStorage(MessageQueue *userMessageStorage);
+void eeprom_v_setStorage(MessageQueue *userMessageStorage);
 
 #endif

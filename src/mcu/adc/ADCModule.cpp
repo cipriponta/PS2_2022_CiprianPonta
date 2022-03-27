@@ -1,6 +1,6 @@
 #include "ADCModule.h"
 
-static void ADCModule::init()
+void adc_v_init()
 {
     ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
     ADMUX |= (1 << REFS0);
@@ -8,7 +8,7 @@ static void ADCModule::init()
     ADCSRA |= (1 << ADSC);
 }
 
-static int ADCModule::read(int pin)
+static int adc_i_read(int pin)
 {
     ADMUX &= ~0x0F;
     ADMUX |= pin;
@@ -17,9 +17,9 @@ static int ADCModule::read(int pin)
     return ADC;
 }
 
-static double ADCModule::readTemperature(int pin)
+double adc_d_readTemperature(int pin)
 {
-    int adcValue = read(pin);
+    int adcValue = adc_i_read(pin);
     double voltage = 5.0/1023.0 * (double)adcValue;
 	return voltage * 100.0;
 }

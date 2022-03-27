@@ -2,15 +2,11 @@
 #define __TIMER_PWM_MODULE_H__
 
 #include <Arduino.h>
-#include "UARTModule.h"
+#include "../uart/UARTModule.h"
 
 #define F_CPU 16000000LL
 #define PRESC 64LL
 
-class TimerPWMModule
-{
-public:
-    static void init();
-};
+void timer_pwm_v_init();
 
 #endif

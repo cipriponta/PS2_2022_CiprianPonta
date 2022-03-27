@@ -1,6 +1,6 @@
 #include "TimerPWMModule.h"
 
-void TimerPWMModule::init()
+void timer_pwm_v_init()
 {
     DDRB |= (1 << PB7);                                 // Builtin LED
     
@@ -30,4 +30,3 @@ void TimerPWMModule::init()
     OCR1A = 0;
     OCR2A = 0;
 }
-
