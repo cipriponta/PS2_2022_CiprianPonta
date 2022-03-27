@@ -26,7 +26,8 @@ void timer_pwm_v_init()
     TIMSK5 |= (1 << OCIE5A);                            // Interrupt enable
     OCR5A = (int)((F_CPU / PRESC) / 10);                // Interrupt period
     
+    // RGB led initial values
     OCR1B = 0;
     OCR1A = 0;
-    OCR2A = 0;
+    OCR2A = 0;  
 }
