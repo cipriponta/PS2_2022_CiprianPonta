@@ -31,3 +31,77 @@ void timer_pwm_v_init()
     OCR1A = 0;
     OCR2A = 0;  
 }
+
+ISR(TIMER5_COMPA_vect)
+{
+    // Scheduler Interrupt
+
+    // Repeat every 0.1 seconds
+    static int interruptCount = 0;
+    interruptCount++;
+    if(interruptCount == 10)
+    {
+        interruptCount = 0;
+    }
+
+    static int previousStateButtonOk   = 0;
+    static int previousStateButtonBack = 0;
+    static int previousStateButtonUp   = 0;
+    static int previousStateButtonDown = 0;
+
+    int currentStateButtonOk   = PINK & (1 << PK0);
+    int currentStateButtonBack = PINK & (1 << PK1);
+    int currentStateButtonUp   = PINK & (1 << PK2);
+    int currentStateButtonDown = PINK & (1 << PK3);
+    e_ButtonEvents currentButtonEvent = BE_NONE;
+
+    if(currentStateButtonOk && !previousStateButtonOk)
+    {
+        currentButtonEvent = BE_OK;
+    }
+    else if(currentStateButtonBack && !previousStateButtonBack)
+    {
+        currentButtonEvent = BE_BACK;
+    }
+    else if(currentStateButtonUp && !previousStateButtonUp)
+    {
+        currentButtonEvent = BE_UP;
+    }
+    else if(currentStateButtonDown && !previousStateButtonDown)
+    {
+        currentButtonEvent = BE_DOWN;
+    }
+
+    menu_v_stateMachine[currentMenu][currentButtonEvent]();
+    menu_v_printMenu();
+
+    // Repeat every second
+    if(interruptCount == 0)
+    {
+        double temperature = adc_d_readTemperature(0);
+        int floodDetected  = PINH & (1 << 6);
+
+        // Terminal
+        uart_v_stringPrint("Temperature: ");
+        uart_v_doublePrint(temperature);
+        uart_v_emptyPrintln();
+
+        uart_v_stringPrint("Flood detected: ");
+        if(floodDetected)
+        {
+            uart_v_stringPrintln("YES");
+        }
+        else
+        {
+            uart_v_stringPrintln("NO");
+        }
+        uart_v_emptyPrintln();
+
+        uart_v_emptyPrintln();
+    }
+
+    previousStateButtonOk   = currentStateButtonOk;
+    previousStateButtonBack = currentStateButtonBack;
+    previousStateButtonUp   = currentStateButtonUp;
+    previousStateButtonDown = currentStateButtonDown;
+}
