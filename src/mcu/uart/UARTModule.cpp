@@ -22,6 +22,20 @@ void uart_v_stringPrint(char *message)
     }
 }
 
+void uart_v_emptyPrintln()
+{
+    uart_v_sendChar('\n');
+}
+
+void uart_v_stringPrintln(char *message)
+{
+    for (int i = 0; i < strlen(message); i++)
+    {
+        uart_v_sendChar(message[i]);
+    }
+    uart_v_sendChar('\n');
+}
+
 void uart_v_intPrint(int number)
 {
     char charNumber[10];
@@ -41,20 +55,6 @@ void uart_v_doublePrint(double number)
     uart_v_intPrint(decimalPart);
     uart_v_stringPrint(".");
     uart_v_intPrint(fractionalPart);
-}
-
-void uart_v_emptyPrintln()
-{
-    uart_v_sendChar('\n');
-}
-
-void uart_v_stringPrintln(char *message)
-{
-    for (int i = 0; i < strlen(message); i++)
-    {
-        uart_v_sendChar(message[i]);
-    }
-    uart_v_sendChar('\n');
 }
 
 int uart_i_checkIfHex(char c)
@@ -128,4 +128,51 @@ void uart_v_showUserMessages(MessageQueue userMessageStorage)
     }
     
     uart_v_emptyPrintln();
+}
+
+ISR(USART0_RX_vect)
+{
+    // Reception Interrupt
+
+    static char messageBuffer[100];
+    static int messageLength;
+
+    char character = UDR0;
+
+    if(character == '\n')
+    {
+        messageBuffer[messageLength] = '\0';
+
+        if(strcmp(messageBuffer, "1 A") == 0)
+        {
+            PORTB |= (1 << PB7);
+        }
+        else if(strcmp(messageBuffer, "1 S") == 0)
+        {
+            PORTB &= !(1 << PB7);
+        }
+        else if(strlen(messageBuffer) >= 1)
+        {
+            if(messageBuffer[0] == '2')
+            {
+                uart_v_parseRGB(messageBuffer);
+            }
+            else if(messageBuffer[0] == '6')
+            {
+                uart_v_getUserMessage(messageBuffer, &userMessageStorage);
+            }
+            else if(messageBuffer[0] == '7')
+            {
+                // Option used for checking the message storage struct
+
+                uart_v_showUserMessages(userMessageStorage);
+            }
+        }
+
+        messageLength = 0;
+    }
+    else
+    {
+        messageBuffer[messageLength++] = character;
+    }
 }
