@@ -18,7 +18,7 @@ void uart_v_doublePrint(double number);
 int  uart_i_checkIfHex(char c);
 void uart_v_parseRGB(char *message);
 
-void uart_v_getUserMessage(char *message, MessageQueue *userMessageStorage);
-void uart_v_showUserMessages(MessageQueue userMessageStorage);
+void uart_v_getUserMessage(char *message);
+void uart_v_showUserMessages();
 
 #endif

@@ -36,6 +36,7 @@ void uart_v_stringPrintln(char *message)
     uart_v_sendChar('\n');
 }
 
+
 void uart_v_intPrint(int number)
 {
     char charNumber[10];
@@ -91,7 +92,7 @@ void uart_v_parseRGB(char *message)
     OCR2A = (int)strtol(charOCR2A, NULL, 16);
 }
 
-void uart_v_getUserMessage(char *message, MessageQueue *userMessageStorage)
+void uart_v_getUserMessage(char *message)
 {
     uart_v_stringPrint("Message received: ");
     uart_v_stringPrintln(message + 2);
@@ -99,22 +100,23 @@ void uart_v_getUserMessage(char *message, MessageQueue *userMessageStorage)
     
     for(int i = 0; i <= MESSAGE_QUEUE_LENGTH - 2; i++)
     {
-        strcpy(userMessageStorage->messageArray[i], userMessageStorage->messageArray[i + 1]);
+        strcpy(userMessageStorage.messageArray[i], userMessageStorage.messageArray[i + 1]);
     }
 
-    strcpy(userMessageStorage->messageArray[MESSAGE_QUEUE_LENGTH - 1], message + 2);
-    userMessageStorage->readMessagesArray[MESSAGE_QUEUE_LENGTH - 1] = 0;
-    
+    strcpy(userMessageStorage.messageArray[MESSAGE_QUEUE_LENGTH - 1], message + 2);
+    userMessageStorage.readMessagesArray[MESSAGE_QUEUE_LENGTH - 1] = 0;
+
+    eeprom_v_setStorage();
 }
 
-void uart_v_showUserMessages(MessageQueue userMessageStorage)
+void uart_v_showUserMessages()
 {
     uart_v_stringPrintln("Last 10 User Messages: ");
     for(int i = MESSAGE_QUEUE_LENGTH - 1; i >= 0; i--)
     {
         uart_v_intPrint((int)(i + 1));
         uart_v_stringPrint(".");
-        if(userMessageStorage.readMessagesArray[i])
+        if(userMessageStorage.readMessagesArray[i] == 1)
         {
             uart_v_stringPrint("(R)");
         }
@@ -131,9 +133,10 @@ void uart_v_showUserMessages(MessageQueue userMessageStorage)
 ISR(USART0_RX_vect)
 {
     // Reception Interrupt
-
-    static char messageBuffer[100];
-    static int messageLength;
+    cli();
+    
+    static volatile char messageBuffer[100];
+    static volatile int messageLength;
 
     char character = UDR0;
 
@@ -157,13 +160,13 @@ ISR(USART0_RX_vect)
             }
             else if(messageBuffer[0] == '6')
             {
-                uart_v_getUserMessage(messageBuffer, &userMessageStorage);
+                uart_v_getUserMessage(messageBuffer);
             }
             else if(messageBuffer[0] == '7')
             {
                 // Option used for checking the message storage struct
 
-                uart_v_showUserMessages(userMessageStorage);
+                uart_v_showUserMessages();
             }
         }
 
@@ -173,4 +176,6 @@ ISR(USART0_RX_vect)
     {
         messageBuffer[messageLength++] = character;
     }
+
+    sei();
 }

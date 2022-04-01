@@ -13,7 +13,11 @@ typedef struct MessageQueue
     unsigned char readMessagesArray[MESSAGE_QUEUE_LENGTH];
 }MessageQueue;
 
-void eeprom_v_getStorage(MessageQueue *userMessageStorage);
-void eeprom_v_setStorage(MessageQueue *userMessageStorage);
+extern MessageQueue userMessageStorage;
+
+void eeprom_v_getStorage();
+void eeprom_v_setStorage();
+int eeprom_i_checkIfUnread();
+int eeprom_i_checkIfRead();
 
 #endif

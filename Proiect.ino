@@ -1,7 +1,10 @@
 /***********************************************************
  *
  *  PS2_2022_PontaCiprianIoan
- *
+ * 
+ *  Add Read/Unread Submenus
+ *  Solve Potential Read Unread Bug
+ * 
  **********************************************************/
 
 #include <LiquidCrystal.h>
@@ -25,8 +28,8 @@ int main()
 
     sei();
 
-    // eeprom_v_getStorage(&userMessageStorage);
-    uart_v_showUserMessages(userMessageStorage);
+    eeprom_v_getStorage();
+    uart_v_showUserMessages();
 
     while (1);
 }
