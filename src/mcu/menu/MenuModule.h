@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <LiquidCrystal.h>
+#include "../adc/ADCModule.h"
 
 typedef enum e_ButtonEvents
 {
@@ -25,6 +26,8 @@ typedef enum e_Menus
     MENU_MESSAGES_UNREAD,
     MENU_MESSAGES_READ,
     MENU_MESSAGES_DELETE,
+    MENU_MESSAGES_MAXNUM,
+    MENU_TEMPERATURE_SHOW,
     MENU_MAXNUM
 }e_Menus;
 
@@ -42,5 +45,7 @@ void menu_v_prevSubmenu();
 void menu_v_enterMsgMenus();
 void menu_v_nextMsgMenu();
 void menu_v_prevMsgMenu();
+void menu_v_enterTempMenu();
+void menu_v_exitTempMenu();
 
 #endif

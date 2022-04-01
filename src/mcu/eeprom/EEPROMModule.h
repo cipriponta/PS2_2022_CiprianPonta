@@ -4,12 +4,13 @@
 #include <EEPROM.h>
 
 #define MESSAGE_QUEUE_LENGTH    10
+#define MESSAGE_MAX_LENGTH      30
 #define EEPROM_START_ADDRESS     0
 
 typedef struct MessageQueue
 {
-    char messageArray[MESSAGE_QUEUE_LENGTH][30];
-    int index;
+    char messageArray[MESSAGE_QUEUE_LENGTH][MESSAGE_MAX_LENGTH];
+    unsigned char readMessagesArray[MESSAGE_QUEUE_LENGTH];
 }MessageQueue;
 
 void eeprom_v_getStorage(MessageQueue *userMessageStorage);

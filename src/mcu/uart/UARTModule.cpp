@@ -97,36 +97,34 @@ void uart_v_getUserMessage(char *message, MessageQueue *userMessageStorage)
     uart_v_stringPrintln(message + 2);
     uart_v_emptyPrintln();
     
-    userMessageStorage->index++;
-    if(userMessageStorage->index == 10)
+    for(int i = 0; i <= MESSAGE_QUEUE_LENGTH - 2; i++)
     {
-        userMessageStorage->index = 0;
+        strcpy(userMessageStorage->messageArray[i], userMessageStorage->messageArray[i + 1]);
     }
+
+    strcpy(userMessageStorage->messageArray[MESSAGE_QUEUE_LENGTH - 1], message + 2);
+    userMessageStorage->readMessagesArray[MESSAGE_QUEUE_LENGTH - 1] = 0;
     
-    strcpy(userMessageStorage->messageArray[userMessageStorage->index], message + 2);
-    
-    eeprom_v_setStorage(userMessageStorage);
 }
 
 void uart_v_showUserMessages(MessageQueue userMessageStorage)
 {
-    int count = 10;
-    
     uart_v_stringPrintln("Last 10 User Messages: ");
-    for(int i = userMessageStorage.index; i >= 0; i--)
+    for(int i = MESSAGE_QUEUE_LENGTH - 1; i >= 0; i--)
     {
-        uart_v_intPrint(count--);
-        uart_v_stringPrint(". \t");
+        uart_v_intPrint((int)(i + 1));
+        uart_v_stringPrint(".");
+        if(userMessageStorage.readMessagesArray[i])
+        {
+            uart_v_stringPrint("(R)");
+        }
+        else
+        {
+            uart_v_stringPrint("(U)");
+        }
+        uart_v_stringPrint("\t");
         uart_v_stringPrintln(userMessageStorage.messageArray[i]);
     }
-    
-    for(int i = MESSAGE_QUEUE_LENGTH - 1; i > userMessageStorage.index; i--)
-    {
-        uart_v_intPrint(count--);
-        uart_v_stringPrint(". \t");
-        uart_v_stringPrintln(userMessageStorage.messageArray[i]);
-    }
-    
     uart_v_emptyPrintln();
 }
 

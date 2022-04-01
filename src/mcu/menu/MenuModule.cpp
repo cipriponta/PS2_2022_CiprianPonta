@@ -3,19 +3,23 @@
 void (*menu_v_stateMachine[MENU_MAXNUM][BE_MAXNUM])() = 
 {
     //  OK                      BACK                    UP                      DOWN                    NONE
-    {   menu_v_enterSubmenus,   menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing  },       // MENU_MAIN
-    {   menu_v_enterMsgMenus,   menu_v_enterMainMenu,   menu_v_prevSubmenu,     menu_v_nextSubmenu,     menu_v_nothing  },       // MENU_MESSAGES
-    {   menu_v_nothing,         menu_v_enterMainMenu,   menu_v_prevSubmenu,     menu_v_nextSubmenu,     menu_v_nothing  },       // MENU_CONTROL
-    {   menu_v_nothing,         menu_v_enterMainMenu,   menu_v_prevSubmenu,     menu_v_nextSubmenu,     menu_v_nothing  },       // MENU_TEMPERATURE
-    {   menu_v_nothing,         menu_v_enterMainMenu,   menu_v_prevSubmenu,     menu_v_nextSubmenu,     menu_v_nothing  },       // MENU_FLOODS
-    {   menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing  },       // -- MENU_SUBMENU_MAXNUM --
-    {   menu_v_nothing,         menu_v_enterSubmenus,   menu_v_prevMsgMenu,     menu_v_nextMsgMenu,     menu_v_nothing  },       // MENU_MESSAGES_UNREAD
-    {   menu_v_nothing,         menu_v_enterSubmenus,   menu_v_prevMsgMenu,     menu_v_nextMsgMenu,     menu_v_nothing  },       // MENU_MESSAGES_READ 
-    {   menu_v_nothing,         menu_v_enterSubmenus,   menu_v_prevMsgMenu,     menu_v_nextMsgMenu,     menu_v_nothing  },       // MENU_MESSAGES_DELETE
+    {   menu_v_enterSubmenus,   menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing          },       // MENU_MAIN
+    {   menu_v_enterMsgMenus,   menu_v_enterMainMenu,   menu_v_prevSubmenu,     menu_v_nextSubmenu,     menu_v_nothing          },       // MENU_MESSAGES
+    {   menu_v_nothing,         menu_v_enterMainMenu,   menu_v_prevSubmenu,     menu_v_nextSubmenu,     menu_v_nothing          },       // MENU_CONTROL
+    {   menu_v_enterTempMenu,   menu_v_enterMainMenu,   menu_v_prevSubmenu,     menu_v_nextSubmenu,     menu_v_nothing          },       // MENU_TEMPERATURE
+    {   menu_v_nothing,         menu_v_enterMainMenu,   menu_v_prevSubmenu,     menu_v_nextSubmenu,     menu_v_nothing          },       // MENU_FLOODS
+    {   menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing          },       // -- MENU_SUBMENU_MAXNUM --
+    {   menu_v_nothing,         menu_v_enterSubmenus,   menu_v_prevMsgMenu,     menu_v_nextMsgMenu,     menu_v_nothing          },       // MENU_MESSAGES_UNREAD
+    {   menu_v_nothing,         menu_v_enterSubmenus,   menu_v_prevMsgMenu,     menu_v_nextMsgMenu,     menu_v_nothing          },       // MENU_MESSAGES_READ 
+    {   menu_v_nothing,         menu_v_enterSubmenus,   menu_v_prevMsgMenu,     menu_v_nextMsgMenu,     menu_v_nothing          },       // MENU_MESSAGES_DELETE
+    {   menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing          },       // -- MENU_MESSAGES_MAXNUM --
+    {   menu_v_nothing,         menu_v_exitTempMenu,    menu_v_nothing,         menu_v_nothing,         menu_v_enterTempMenu    }        // MENU_TEMPERATURE_SHOW
 };
 
 void menu_v_printMenu()
 {
+    double temperature;
+
     switch(currentMenu)
     {
         case MENU_MAIN:
@@ -66,6 +70,13 @@ void menu_v_printMenu()
             lcd.setCursor(0, 1);
             lcd.write("Delete Messages  ");
         break;
+        case MENU_TEMPERATURE_SHOW:
+            lcd.setCursor(0, 0);
+            lcd.write("Temperature Menu:   ");
+            temperature = adc_d_readTemperature(0);
+            lcd.setCursor(0, 1);
+            lcd.print(String(temperature) + " *C     ");
+        break;
     }
 }
 
@@ -110,7 +121,7 @@ void menu_v_enterMsgMenus()
 void menu_v_nextMsgMenu()
 {
     currentMenu = currentMenu + 1;
-    if(currentMenu == MENU_MAXNUM)
+    if(currentMenu == MENU_MESSAGES_MAXNUM)
     {
         currentMenu = MENU_SUBMENU_MAXNUM + 1;
     }
@@ -121,6 +132,16 @@ void menu_v_prevMsgMenu()
     currentMenu = currentMenu - 1;
     if(currentMenu == MENU_SUBMENU_MAXNUM)
     {
-        currentMenu = MENU_MAXNUM - 1;
+        currentMenu = MENU_MESSAGES_MAXNUM - 1;
     }
+}
+
+void menu_v_enterTempMenu()
+{
+    currentMenu = MENU_TEMPERATURE_SHOW;
+}
+
+void menu_v_exitTempMenu()
+{
+    currentMenu = MENU_TEMPERATURE;
 }

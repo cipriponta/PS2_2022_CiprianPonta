@@ -81,7 +81,6 @@ ISR(TIMER5_COMPA_vect)
         double temperature = adc_d_readTemperature(0);
         int floodDetected  = PINH & (1 << 6);
 
-        // Terminal
         uart_v_stringPrint("Temperature: ");
         uart_v_doublePrint(temperature);
         uart_v_emptyPrintln();

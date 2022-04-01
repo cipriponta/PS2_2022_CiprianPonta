@@ -25,8 +25,7 @@ int main()
 
     sei();
 
-    userMessageStorage.index = 0;
-    eeprom_v_getStorage(&userMessageStorage);
+    // eeprom_v_getStorage(&userMessageStorage);
     uart_v_showUserMessages(userMessageStorage);
 
     while (1);
