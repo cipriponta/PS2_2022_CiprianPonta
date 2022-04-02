@@ -94,8 +94,7 @@ ISR(TIMER5_COMPA_vect)
         {
             uart_v_stringPrintln("NO");
         }
-        uart_v_emptyPrintln();
-
+        
         uart_v_emptyPrintln();
     }
 

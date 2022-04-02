@@ -101,6 +101,7 @@ void uart_v_getUserMessage(char *message)
     for(int i = 0; i <= MESSAGE_QUEUE_LENGTH - 2; i++)
     {
         strcpy(userMessageStorage.messageArray[i], userMessageStorage.messageArray[i + 1]);
+        userMessageStorage.readMessagesArray[i] = userMessageStorage.readMessagesArray[i + 1];
     }
 
     strcpy(userMessageStorage.messageArray[MESSAGE_QUEUE_LENGTH - 1], message + 2);

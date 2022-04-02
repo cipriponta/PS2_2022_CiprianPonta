@@ -2,8 +2,7 @@
  *
  *  PS2_2022_PontaCiprianIoan
  * 
- *  Add Read/Unread Submenus
- *  Solve Potential Read Unread Bug
+ *  ToDo: EEPROM Library
  * 
  **********************************************************/
 

@@ -13,14 +13,14 @@ void (*menu_v_stateMachine[MENU_MAXNUM][BE_MAXNUM])() =
     {   menu_v_enterMessRead,   menu_v_enterSubmenus,   menu_v_prevMsgMenu,     menu_v_nextMsgMenu,     menu_v_nothing          },       // MENU_MESSAGES_READ 
     {   menu_v_enterMessDelete, menu_v_enterSubmenus,   menu_v_prevMsgMenu,     menu_v_nextMsgMenu,     menu_v_nothing          },       // MENU_MESSAGES_DELETE
     {   menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing,         menu_v_nothing          },       // -- MENU_MESSAGES_MAXNUM --
-    {   menu_v_nothing,         menu_v_exitMessUnread,  menu_v_nothing,         menu_v_nothing,         menu_v_nothing          },       // MENU_MESSAGES_UNREAD_SHOW
-    {   menu_v_nothing,         menu_v_exitMessRead,    menu_v_nothing,         menu_v_nothing,         menu_v_nothing          },       // MENU_MESSAGES_READ_SHOW
+    {   menu_v_exitMessUnread,  menu_v_exitMessUnread,  menu_v_prevMessUnread,  menu_v_nextMessUnread,  menu_v_nothing          },       // MENU_MESSAGES_UNREAD_SHOW
+    {   menu_v_exitMessRead,    menu_v_exitMessRead,    menu_v_prevMessRead,    menu_v_nextMessRead,    menu_v_nothing          },       // MENU_MESSAGES_READ_SHOW
     {   menu_v_deleteMess,      menu_v_exitMenuDelete,  menu_v_nothing,         menu_v_nothing,         menu_v_nothing          },       // MENU_MESSAGES_DELETE_SHOW
     {   menu_v_exitTempMenu,    menu_v_exitTempMenu,    menu_v_nothing,         menu_v_nothing,         menu_v_enterTempMenu    }        // MENU_TEMPERATURE_SHOW
 };
 
-static int unreadMessageIndex = MESSAGE_QUEUE_LENGTH - 1;
-static int readMessageIndex = MESSAGE_QUEUE_LENGTH - 1;
+static int unreadMessageIndex = MESSAGE_QUEUE_LENGTH;
+static int readMessageIndex = MESSAGE_QUEUE_LENGTH;
 
 void menu_v_printMenu()
 {
@@ -87,13 +87,29 @@ void menu_v_printMenu()
             lcd.setCursor(0, 0);
             lcd.write("Unread Messages:");
             lcd.setCursor(0, 1);
-            lcd.write("                ");
+            if(unreadMessageIndex != -1)
+            {
+                lcd.write(userMessageStorage.messageArray[unreadMessageIndex]);
+                lcd.write("                 ");
+            }
+            else
+            {
+                lcd.write("                 ");
+            }
         break;
         case MENU_MESSAGES_READ_SHOW:
             lcd.setCursor(0, 0);
             lcd.write("Read Messages:  ");
             lcd.setCursor(0, 1);
-            lcd.write("                ");
+            if(readMessageIndex != -1)
+            {
+                lcd.write(userMessageStorage.messageArray[readMessageIndex]);
+                lcd.write("                 ");
+            }
+            else
+            {
+                lcd.write("                 ");
+            }
         break;
         case MENU_MESSAGES_DELETE_SHOW:
             lcd.setCursor(0, 0);
@@ -173,6 +189,8 @@ static void menu_v_exitTempMenu()
 static void menu_v_enterMessUnread()
 {
     currentMenu = MENU_MESSAGES_UNREAD_SHOW;
+    unreadMessageIndex = MESSAGE_QUEUE_LENGTH;
+    menu_v_nextMessUnread();
 }
 
 static void menu_v_exitMessUnread()
@@ -183,6 +201,8 @@ static void menu_v_exitMessUnread()
 static void menu_v_enterMessRead()
 {
     currentMenu = MENU_MESSAGES_READ_SHOW;
+    readMessageIndex = MESSAGE_QUEUE_LENGTH;
+    menu_v_nextMessRead();
 }
 
 static void menu_v_exitMessRead()
@@ -205,7 +225,116 @@ static void menu_v_deleteMess()
     for(int i = MESSAGE_QUEUE_LENGTH - 1; i >= 0; i--)
     {
         strcpy(userMessageStorage.messageArray[i], "");
+        userMessageStorage.readMessagesArray[i] = 0;
     }
     eeprom_v_setStorage();
     menu_v_exitMenuDelete();
+}
+
+static void menu_v_nextMessUnread()
+{
+    unreadMessageIndex--;
+
+    if(!eeprom_i_checkIfUnread())
+    {
+        unreadMessageIndex = -1;
+        return;
+    }
+
+    while(1)
+    {
+        if(userMessageStorage.readMessagesArray[unreadMessageIndex] == 0 && unreadMessageIndex >= 0 && unreadMessageIndex <= MESSAGE_QUEUE_LENGTH - 1)
+        {
+            userMessageStorage.readMessagesArray[unreadMessageIndex] = 1;
+            eeprom_v_setStorage();
+            return;
+        }
+
+        unreadMessageIndex--;
+
+        if(unreadMessageIndex <= -1)
+        {
+            unreadMessageIndex = MESSAGE_QUEUE_LENGTH - 1;
+        }
+    }
+}
+
+static void menu_v_prevMessUnread()
+{
+    unreadMessageIndex++;
+
+    if(!eeprom_i_checkIfUnread())
+    {
+        unreadMessageIndex = -1;
+        return;
+    }
+
+    while(1)
+    {
+        if(userMessageStorage.readMessagesArray[unreadMessageIndex] == 0 && unreadMessageIndex >= 0 && unreadMessageIndex <= MESSAGE_QUEUE_LENGTH - 1)
+        {
+            userMessageStorage.readMessagesArray[unreadMessageIndex] = 1;
+            eeprom_v_setStorage();
+            return;
+        }
+
+        unreadMessageIndex++;
+
+        if(unreadMessageIndex >= MESSAGE_QUEUE_LENGTH)
+        {
+            unreadMessageIndex = 0;
+        }
+    }
+}
+
+static void menu_v_nextMessRead()
+{
+    readMessageIndex--;
+
+    if(!eeprom_i_checkIfRead())
+    {
+        readMessageIndex = -1;
+        return;
+    }
+
+    while(1)
+    {
+        if(userMessageStorage.readMessagesArray[readMessageIndex] == 1 && readMessageIndex >= 0 && readMessageIndex <= MESSAGE_QUEUE_LENGTH - 1)
+        {
+            return;
+        }
+
+        readMessageIndex--;
+
+        if(readMessageIndex < 0)
+        {
+            readMessageIndex = MESSAGE_QUEUE_LENGTH - 1;
+        }
+    }
+}
+
+static void menu_v_prevMessRead()
+{
+    readMessageIndex++;
+
+    if(!eeprom_i_checkIfRead())
+    {
+        readMessageIndex = -1;
+        return;
+    }
+
+    while(1)
+    {
+        if(userMessageStorage.readMessagesArray[readMessageIndex] == 1 && readMessageIndex >= 0 && readMessageIndex <= MESSAGE_QUEUE_LENGTH - 1)
+        {
+            return;
+        }
+
+        readMessageIndex++;
+
+        if(readMessageIndex >= MESSAGE_QUEUE_LENGTH)
+        {
+            readMessageIndex = 0;
+        }
+    }
 }

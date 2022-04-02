@@ -39,6 +39,7 @@ extern e_Menus currentMenu;
 extern LiquidCrystal lcd;
 extern MessageQueue userMessageStorage;
 extern void (*menu_v_stateMachine[MENU_MAXNUM][BE_MAXNUM])();
+extern int readMessageIndex;
 
 void menu_v_printMenu();
 
